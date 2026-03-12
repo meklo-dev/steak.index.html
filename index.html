@@ -3,32 +3,78 @@
 
 <head>
 
-<title>Stake Demo Casino</title>
+<title>LuckyArcade Casino</title>
 
 <style>
 
 body{
-background:#111;
+background:#0f172a;
 color:white;
 font-family:Arial;
-text-align:center;
+margin:0;
 }
 
-.game{
-border:1px solid white;
-margin:20px;
+header{
+background:#065f46;
+padding:15px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+header h1{
+margin:0;
+}
+
+nav{
+display:flex;
+gap:20px;
+}
+
+.container{
 padding:20px;
 }
 
-button{
-padding:10px 20px;
-font-size:16px;
-cursor:pointer;
+.balance{
+font-size:20px;
+margin-bottom:10px;
 }
 
-input{
-padding:5px;
+input,select{
+padding:6px;
 margin:5px;
+}
+
+button{
+padding:10px 16px;
+cursor:pointer;
+background:#10b981;
+border:none;
+color:white;
+border-radius:4px;
+}
+
+button:hover{
+background:#059669;
+}
+
+.game{
+background:#1e293b;
+padding:20px;
+margin:20px 0;
+border-radius:6px;
+}
+
+canvas{
+background:#111;
+margin-top:10px;
+}
+
+.leaderboard{
+background:#1e293b;
+padding:15px;
+border-radius:6px;
+margin-top:20px;
 }
 
 </style>
@@ -37,18 +83,50 @@ margin:5px;
 
 <body>
 
-<h1>Stake Demo Casino</h1>
+<header>
 
-<h2>Balance: <span id="balance">1000</span> coins</h2>
+<h1>LuckyArcade</h1>
 
-<h3>Bet Amount</h3>
+<nav>
+<span>Casino</span>
+<span>Games</span>
+<span>Leaderboard</span>
+</nav>
+
+</header>
+
+<div class="container">
+
+<div class="balance">
+Balance: <span id="balance">1000</span> coins
+</div>
+
+Bet Amount
 <input id="bet" type="number" value="50">
+
+<!-- ROULETTE -->
+
+<div class="game">
+
+<h2>Roulette</h2>
+
+<input id="rouletteGuess" type="number" min="1" max="36">
+
+<button onclick="roulette()">Spin</button>
+
+<br>
+
+<canvas id="rouletteWheel" width="200" height="200"></canvas>
+
+<p id="rouletteResult"></p>
+
+</div>
 
 <!-- COIN FLIP -->
 
 <div class="game">
 
-<h3>Coin Flip</h3>
+<h2>Coin Flip</h2>
 
 <select id="coinGuess">
 <option value="heads">Heads</option>
@@ -61,12 +139,11 @@ margin:5px;
 
 </div>
 
-
 <!-- DICE -->
 
 <div class="game">
 
-<h3>Dice Guess (1-6)</h3>
+<h2>Dice</h2>
 
 <input id="diceGuess" type="number" min="1" max="6">
 
@@ -76,54 +153,52 @@ margin:5px;
 
 </div>
 
-
-<!-- ROULETTE -->
-
-<div class="game">
-
-<h3>Roulette (Pick 1-36)</h3>
-
-<input id="rouletteGuess" type="number" min="1" max="36">
-
-<button onclick="roulette()">Spin</button>
-
-<p id="rouletteResult"></p>
-
-</div>
-
-
-<!-- NUMBER GUESS -->
+<!-- CRASH -->
 
 <div class="game">
 
-<h3>Number Guess (1-10)</h3>
+<h2>Crash</h2>
 
-<input id="numberGuess" type="number" min="1" max="10">
+<button onclick="startCrash()">Start</button>
+<button onclick="cashOut()">Cash Out</button>
 
-<button onclick="guessGame()">Play</button>
+<h2 id="crashMultiplier">1.00x</h2>
 
-<p id="guessResult"></p>
+<p id="crashResult"></p>
 
 </div>
 
-
-<!-- HIGH LOW -->
+<!-- PLINKO -->
 
 <div class="game">
 
-<h3>High or Low (1-100)</h3>
+<h2>Plinko</h2>
 
-<select id="highLowGuess">
-<option value="high">High</option>
-<option value="low">Low</option>
-</select>
+<button onclick="dropBall()">Drop Ball</button>
 
-<button onclick="highLow()">Play</button>
+<br>
 
-<p id="highLowResult"></p>
+<canvas id="plinko" width="300" height="250"></canvas>
+
+<p id="plinkoResult"></p>
 
 </div>
 
+<!-- LEADERBOARD -->
+
+<div class="leaderboard">
+
+<h2>Leaderboard</h2>
+
+<ol id="leaderboard">
+<li>You - 1000</li>
+<li>Player2 - 800</li>
+<li>Player3 - 650</li>
+</ol>
+
+</div>
+
+</div>
 
 <script>
 
@@ -131,121 +206,190 @@ let balance = 1000
 
 function update(){
 document.getElementById("balance").innerText = balance
+updateLeaderboard()
 }
 
 function getBet(){
 return parseInt(document.getElementById("bet").value)
 }
 
-
-/* COIN FLIP */
+/* COIN */
 
 function coinFlip(){
 
-let guess = document.getElementById("coinGuess").value
-let bet = getBet()
+let guess=document.getElementById("coinGuess").value
+let bet=getBet()
 
-let result = Math.random() < 0.5 ? "heads" : "tails"
+let result=Math.random()<0.5?"heads":"tails"
 
-if(guess === result){
-balance += bet
-}else{
-balance -= bet
-}
+if(guess===result) balance+=bet
+else balance-=bet
 
-document.getElementById("coinResult").innerText = "Result: " + result
-
+document.getElementById("coinResult").innerText="Result: "+result
 update()
 
 }
-
 
 /* DICE */
 
 function rollDice(){
 
-let guess = parseInt(document.getElementById("diceGuess").value)
-let bet = getBet()
+let guess=parseInt(document.getElementById("diceGuess").value)
+let bet=getBet()
 
-let roll = Math.floor(Math.random()*6)+1
+let roll=Math.floor(Math.random()*6)+1
 
-if(guess === roll){
-balance += bet*2
-}else{
-balance -= bet
-}
+if(guess===roll) balance+=bet*2
+else balance-=bet
 
-document.getElementById("diceResult").innerText = "Rolled: " + roll
-
+document.getElementById("diceResult").innerText="Rolled: "+roll
 update()
 
 }
-
 
 /* ROULETTE */
 
 function roulette(){
 
-let guess = parseInt(document.getElementById("rouletteGuess").value)
-let bet = getBet()
+let guess=parseInt(document.getElementById("rouletteGuess").value)
+let bet=getBet()
 
-let spin = Math.floor(Math.random()*36)+1
+let spin=Math.floor(Math.random()*36)+1
 
-if(guess === spin){
-balance += bet*10
-}else{
-balance -= bet
+drawWheel()
+
+if(guess===spin) balance+=bet*10
+else balance-=bet
+
+document.getElementById("rouletteResult").innerText="Number: "+spin
+update()
+
 }
 
-document.getElementById("rouletteResult").innerText = "Number: " + spin
+function drawWheel(){
+
+const canvas=document.getElementById("rouletteWheel")
+const ctx=canvas.getContext("2d")
+
+ctx.clearRect(0,0,200,200)
+
+let angle=Math.random()*360
+
+ctx.save()
+ctx.translate(100,100)
+ctx.rotate(angle*Math.PI/180)
+
+ctx.beginPath()
+ctx.arc(0,0,80,0,Math.PI*2)
+ctx.strokeStyle="white"
+ctx.stroke()
+
+ctx.restore()
+
+}
+
+/* CRASH */
+
+let crashRunning=false
+let multiplier=1
+let crashPoint
+
+function startCrash(){
+
+if(crashRunning) return
+
+let bet=getBet()
+
+balance-=bet
+update()
+
+crashRunning=true
+multiplier=1
+crashPoint=Math.random()*5+1
+
+let interval=setInterval(()=>{
+
+multiplier+=0.05
+
+document.getElementById("crashMultiplier").innerText=
+multiplier.toFixed(2)+"x"
+
+if(multiplier>=crashPoint){
+
+clearInterval(interval)
+
+crashRunning=false
+
+document.getElementById("crashResult").innerText=
+"CRASHED at "+multiplier.toFixed(2)
+
+}
+
+},100)
+
+}
+
+function cashOut(){
+
+if(!crashRunning) return
+
+let bet=getBet()
+
+balance+=Math.floor(bet*multiplier)
+
+update()
+
+document.getElementById("crashResult").innerText=
+"Cashed out at "+multiplier.toFixed(2)
+
+crashRunning=false
+
+}
+
+/* PLINKO */
+
+const canvas=document.getElementById("plinko")
+const ctx=canvas.getContext("2d")
+
+function dropBall(){
+
+let bet=getBet()
+
+let slots=[0,0.5,1,2,5,2,1,0.5,0]
+
+let slot=Math.floor(Math.random()*slots.length)
+
+let multiplier=slots[slot]
+
+balance+=bet*multiplier-bet
+
+ctx.clearRect(0,0,300,250)
+
+ctx.beginPath()
+ctx.arc(slot*30+20,200,10,0,Math.PI*2)
+ctx.fillStyle="red"
+ctx.fill()
+
+document.getElementById("plinkoResult").innerText=
+"Multiplier: "+multiplier+"x"
 
 update()
 
 }
 
+/* LEADERBOARD */
 
-/* NUMBER GUESS */
+function updateLeaderboard(){
 
-function guessGame(){
+let board=document.getElementById("leaderboard")
 
-let guess = parseInt(document.getElementById("numberGuess").value)
-let bet = getBet()
+board.innerHTML=`
 
-let number = Math.floor(Math.random()*10)+1
+<li>You - ${balance}</li>
+<li>Player2 - 800</li>
+<li>Player3 - 650</li>
 
-if(guess === number){
-balance += bet*3
-}else{
-balance -= bet
-}
-
-document.getElementById("guessResult").innerText = "Correct number: " + number
-
-update()
-
-}
-
-
-/* HIGH LOW */
-
-function highLow(){
-
-let guess = document.getElementById("highLowGuess").value
-let bet = getBet()
-
-let number = Math.floor(Math.random()*100)+1
-
-let result = number > 50 ? "high" : "low"
-
-if(guess === result){
-balance += bet
-}else{
-balance -= bet
-}
-
-document.getElementById("highLowResult").innerText = "Number: " + number
-
-update()
+`
 
 }
 
