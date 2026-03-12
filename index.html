@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Fake Casino</title>
+
+<style>
+
+body{
+background:#111;
+color:white;
+font-family:Arial;
+text-align:center;
+}
+
+.game{
+border:1px solid white;
+padding:20px;
+margin:20px;
+}
+
+button{
+padding:10px 20px;
+font-size:16px;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>Fake Casino</h1>
+
+<h2>Balance: <span id="balance">1000</span> coins</h2>
+
+<div class="game">
+
+<h3>Coin Flip</h3>
+<button onclick="coinFlip()">Flip</button>
+<p id="coinResult"></p>
+
+</div>
+
+<div class="game">
+
+<h3>Dice</h3>
+<button onclick="rollDice()">Roll</button>
+<p id="diceResult"></p>
+
+</div>
+
+<div class="game">
+
+<h3>Roulette</h3>
+<button onclick="roulette()">Spin</button>
+<p id="rouletteResult"></p>
+
+</div>
+
+<script>
+
+let balance = 1000
+
+function update(){
+document.getElementById("balance").innerText = balance
+}
+
+function coinFlip(){
+
+let result = Math.random() < 0.5 ? "Heads" : "Tails"
+
+if(result==="Heads"){
+balance+=50
+}else{
+balance-=50
+}
+
+document.getElementById("coinResult").innerText=result
+update()
+}
+
+function rollDice(){
+
+let roll=Math.floor(Math.random()*6)+1
+
+if(roll>3){
+balance+=40
+}else{
+balance-=40
+}
+
+document.getElementById("diceResult").innerText="Rolled: "+roll
+update()
+}
+
+function roulette(){
+
+let spin=Math.floor(Math.random()*36)+1
+
+if(spin===7){
+balance+=200
+}else{
+balance-=20
+}
+
+document.getElementById("rouletteResult").innerText="Number: "+spin
+update()
+}
+
+</script>
+
+</body>
+</html>
