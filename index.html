@@ -3,7 +3,7 @@
 
 <head>
 
-<title>LuckyArcade Casino</title>
+<title>steak.com</title>
 
 <style>
 
@@ -12,45 +12,32 @@ background:#0f172a;
 color:white;
 font-family:Arial;
 margin:0;
+text-align:center;
 }
 
 header{
 background:#065f46;
 padding:15px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-}
-
-header h1{
-margin:0;
-}
-
-nav{
-display:flex;
-gap:20px;
 }
 
 .container{
 padding:20px;
 }
 
-.balance{
-font-size:20px;
-margin-bottom:10px;
-}
-
-input,select{
-padding:6px;
-margin:5px;
+.game{
+background:#1e293b;
+padding:20px;
+margin:20px auto;
+border-radius:6px;
+max-width:500px;
 }
 
 button{
 padding:10px 16px;
-cursor:pointer;
 background:#10b981;
 border:none;
 color:white;
+cursor:pointer;
 border-radius:4px;
 }
 
@@ -58,23 +45,15 @@ button:hover{
 background:#059669;
 }
 
-.game{
-background:#1e293b;
-padding:20px;
-margin:20px 0;
-border-radius:6px;
+input,select{
+padding:6px;
+margin:5px;
 }
 
 canvas{
 background:#111;
 margin-top:10px;
-}
-
-.leaderboard{
-background:#1e293b;
-padding:15px;
-border-radius:6px;
-margin-top:20px;
+border-radius:50%;
 }
 
 </style>
@@ -84,22 +63,12 @@ margin-top:20px;
 <body>
 
 <header>
-
-<h1>LuckyArcade</h1>
-
-<nav>
-<span>Casino</span>
-<span>Games</span>
-<span>Leaderboard</span>
-</nav>
-
+<h1>steak.com</h1>
 </header>
 
 <div class="container">
 
-<div class="balance">
-Balance: <span id="balance">1000</span> coins
-</div>
+<h2>Balance: <span id="balance">1000</span> coins</h2>
 
 Bet Amount
 <input id="bet" type="number" value="50">
@@ -112,6 +81,8 @@ Bet Amount
 
 <input id="rouletteGuess" type="number" min="1" max="36">
 
+<br>
+
 <button onclick="roulette()">Spin</button>
 
 <br>
@@ -121,6 +92,7 @@ Bet Amount
 <p id="rouletteResult"></p>
 
 </div>
+
 
 <!-- COIN FLIP -->
 
@@ -139,6 +111,7 @@ Bet Amount
 
 </div>
 
+
 <!-- DICE -->
 
 <div class="game">
@@ -152,6 +125,7 @@ Bet Amount
 <p id="diceResult"></p>
 
 </div>
+
 
 <!-- CRASH -->
 
@@ -168,6 +142,7 @@ Bet Amount
 
 </div>
 
+
 <!-- PLINKO -->
 
 <div class="game">
@@ -176,25 +151,9 @@ Bet Amount
 
 <button onclick="dropBall()">Drop Ball</button>
 
-<br>
-
-<canvas id="plinko" width="300" height="250"></canvas>
+<canvas id="plinko" width="300" height="200"></canvas>
 
 <p id="plinkoResult"></p>
-
-</div>
-
-<!-- LEADERBOARD -->
-
-<div class="leaderboard">
-
-<h2>Leaderboard</h2>
-
-<ol id="leaderboard">
-<li>You - 1000</li>
-<li>Player2 - 800</li>
-<li>Player3 - 650</li>
-</ol>
 
 </div>
 
@@ -206,14 +165,14 @@ let balance = 1000
 
 function update(){
 document.getElementById("balance").innerText = balance
-updateLeaderboard()
 }
 
 function getBet(){
 return parseInt(document.getElementById("bet").value)
 }
 
-/* COIN */
+
+/* COIN FLIP */
 
 function coinFlip(){
 
@@ -226,9 +185,11 @@ if(guess===result) balance+=bet
 else balance-=bet
 
 document.getElementById("coinResult").innerText="Result: "+result
+
 update()
 
 }
+
 
 /* DICE */
 
@@ -243,11 +204,58 @@ if(guess===roll) balance+=bet*2
 else balance-=bet
 
 document.getElementById("diceResult").innerText="Rolled: "+roll
+
 update()
 
 }
 
+
 /* ROULETTE */
+
+const wheel=document.getElementById("rouletteWheel")
+const ctx=wheel.getContext("2d")
+
+let rotation=0
+
+function drawWheel(){
+
+const segments=36
+const radius=80
+
+ctx.clearRect(0,0,200,200)
+
+ctx.save()
+ctx.translate(100,100)
+ctx.rotate(rotation)
+
+for(let i=0;i<segments;i++){
+
+let angle=i*(2*Math.PI/segments)
+
+ctx.beginPath()
+ctx.moveTo(0,0)
+ctx.arc(0,0,radius,angle,angle+(2*Math.PI/segments))
+
+ctx.fillStyle=i%2?"black":"red"
+
+ctx.fill()
+
+ctx.save()
+
+ctx.rotate(angle+(Math.PI/segments))
+ctx.fillStyle="white"
+ctx.font="10px Arial"
+ctx.fillText(i+1,40,5)
+
+ctx.restore()
+
+}
+
+ctx.restore()
+
+}
+
+drawWheel()
 
 function roulette(){
 
@@ -256,37 +264,44 @@ let bet=getBet()
 
 let spin=Math.floor(Math.random()*36)+1
 
+let spinDegrees=360*5 + spin*10
+
+let start=rotation
+let end=rotation + spinDegrees*(Math.PI/180)
+
+let startTime=null
+
+function animate(time){
+
+if(!startTime) startTime=time
+
+let progress=time-startTime
+
+rotation=start + (end-start)*(progress/2000)
+
 drawWheel()
+
+if(progress<2000){
+requestAnimationFrame(animate)
+}else{
+
+rotation=end
 
 if(guess===spin) balance+=bet*10
 else balance-=bet
 
 document.getElementById("rouletteResult").innerText="Number: "+spin
+
 update()
 
 }
 
-function drawWheel(){
+}
 
-const canvas=document.getElementById("rouletteWheel")
-const ctx=canvas.getContext("2d")
-
-ctx.clearRect(0,0,200,200)
-
-let angle=Math.random()*360
-
-ctx.save()
-ctx.translate(100,100)
-ctx.rotate(angle*Math.PI/180)
-
-ctx.beginPath()
-ctx.arc(0,0,80,0,Math.PI*2)
-ctx.strokeStyle="white"
-ctx.stroke()
-
-ctx.restore()
+requestAnimationFrame(animate)
 
 }
+
 
 /* CRASH */
 
@@ -346,10 +361,11 @@ crashRunning=false
 
 }
 
+
 /* PLINKO */
 
-const canvas=document.getElementById("plinko")
-const ctx=canvas.getContext("2d")
+const pcanvas=document.getElementById("plinko")
+const pctx=pcanvas.getContext("2d")
 
 function dropBall(){
 
@@ -363,33 +379,17 @@ let multiplier=slots[slot]
 
 balance+=bet*multiplier-bet
 
-ctx.clearRect(0,0,300,250)
+pctx.clearRect(0,0,300,200)
 
-ctx.beginPath()
-ctx.arc(slot*30+20,200,10,0,Math.PI*2)
-ctx.fillStyle="red"
-ctx.fill()
+pctx.beginPath()
+pctx.arc(slot*30+20,150,10,0,Math.PI*2)
+pctx.fillStyle="red"
+pctx.fill()
 
 document.getElementById("plinkoResult").innerText=
 "Multiplier: "+multiplier+"x"
 
 update()
-
-}
-
-/* LEADERBOARD */
-
-function updateLeaderboard(){
-
-let board=document.getElementById("leaderboard")
-
-board.innerHTML=`
-
-<li>You - ${balance}</li>
-<li>Player2 - 800</li>
-<li>Player3 - 650</li>
-
-`
 
 }
 
