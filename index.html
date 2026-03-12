@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<title>Fake Casino</title>
+
+<title>Stake Demo Casino</title>
 
 <style>
 
@@ -14,47 +16,114 @@ text-align:center;
 
 .game{
 border:1px solid white;
-padding:20px;
 margin:20px;
+padding:20px;
 }
 
 button{
 padding:10px 20px;
 font-size:16px;
+cursor:pointer;
+}
+
+input{
+padding:5px;
+margin:5px;
 }
 
 </style>
+
 </head>
 
 <body>
 
-<h1>Fake Casino</h1>
+<h1>Stake Demo Casino</h1>
 
 <h2>Balance: <span id="balance">1000</span> coins</h2>
+
+<h3>Bet Amount</h3>
+<input id="bet" type="number" value="50">
+
+<!-- COIN FLIP -->
 
 <div class="game">
 
 <h3>Coin Flip</h3>
+
+<select id="coinGuess">
+<option value="heads">Heads</option>
+<option value="tails">Tails</option>
+</select>
+
 <button onclick="coinFlip()">Flip</button>
+
 <p id="coinResult"></p>
 
 </div>
 
+
+<!-- DICE -->
+
 <div class="game">
 
-<h3>Dice</h3>
+<h3>Dice Guess (1-6)</h3>
+
+<input id="diceGuess" type="number" min="1" max="6">
+
 <button onclick="rollDice()">Roll</button>
+
 <p id="diceResult"></p>
 
 </div>
 
+
+<!-- ROULETTE -->
+
 <div class="game">
 
-<h3>Roulette</h3>
+<h3>Roulette (Pick 1-36)</h3>
+
+<input id="rouletteGuess" type="number" min="1" max="36">
+
 <button onclick="roulette()">Spin</button>
+
 <p id="rouletteResult"></p>
 
 </div>
+
+
+<!-- NUMBER GUESS -->
+
+<div class="game">
+
+<h3>Number Guess (1-10)</h3>
+
+<input id="numberGuess" type="number" min="1" max="10">
+
+<button onclick="guessGame()">Play</button>
+
+<p id="guessResult"></p>
+
+</div>
+
+
+<!-- HIGH LOW -->
+
+<div class="game">
+
+<h3>High or Low (1-100)</h3>
+
+<select id="highLowGuess">
+<option value="high">High</option>
+<option value="low">Low</option>
+</select>
+
+<button onclick="highLow()">Play</button>
+
+<p id="highLowResult"></p>
+
+</div>
+
 
 <script>
 
@@ -64,49 +133,124 @@ function update(){
 document.getElementById("balance").innerText = balance
 }
 
+function getBet(){
+return parseInt(document.getElementById("bet").value)
+}
+
+
+/* COIN FLIP */
+
 function coinFlip(){
 
-let result = Math.random() < 0.5 ? "Heads" : "Tails"
+let guess = document.getElementById("coinGuess").value
+let bet = getBet()
 
-if(result==="Heads"){
-balance+=50
+let result = Math.random() < 0.5 ? "heads" : "tails"
+
+if(guess === result){
+balance += bet
 }else{
-balance-=50
+balance -= bet
 }
 
-document.getElementById("coinResult").innerText=result
+document.getElementById("coinResult").innerText = "Result: " + result
+
 update()
+
 }
+
+
+/* DICE */
 
 function rollDice(){
 
-let roll=Math.floor(Math.random()*6)+1
+let guess = parseInt(document.getElementById("diceGuess").value)
+let bet = getBet()
 
-if(roll>3){
-balance+=40
+let roll = Math.floor(Math.random()*6)+1
+
+if(guess === roll){
+balance += bet*2
 }else{
-balance-=40
+balance -= bet
 }
 
-document.getElementById("diceResult").innerText="Rolled: "+roll
+document.getElementById("diceResult").innerText = "Rolled: " + roll
+
 update()
+
 }
+
+
+/* ROULETTE */
 
 function roulette(){
 
-let spin=Math.floor(Math.random()*36)+1
+let guess = parseInt(document.getElementById("rouletteGuess").value)
+let bet = getBet()
 
-if(spin===7){
-balance+=200
+let spin = Math.floor(Math.random()*36)+1
+
+if(guess === spin){
+balance += bet*10
 }else{
-balance-=20
+balance -= bet
 }
 
-document.getElementById("rouletteResult").innerText="Number: "+spin
+document.getElementById("rouletteResult").innerText = "Number: " + spin
+
 update()
+
+}
+
+
+/* NUMBER GUESS */
+
+function guessGame(){
+
+let guess = parseInt(document.getElementById("numberGuess").value)
+let bet = getBet()
+
+let number = Math.floor(Math.random()*10)+1
+
+if(guess === number){
+balance += bet*3
+}else{
+balance -= bet
+}
+
+document.getElementById("guessResult").innerText = "Correct number: " + number
+
+update()
+
+}
+
+
+/* HIGH LOW */
+
+function highLow(){
+
+let guess = document.getElementById("highLowGuess").value
+let bet = getBet()
+
+let number = Math.floor(Math.random()*100)+1
+
+let result = number > 50 ? "high" : "low"
+
+if(guess === result){
+balance += bet
+}else{
+balance -= bet
+}
+
+document.getElementById("highLowResult").innerText = "Number: " + number
+
+update()
+
 }
 
 </script>
 
 </body>
+
 </html>
