@@ -56,6 +56,12 @@ background:#111;
 margin-top:10px;
 }
 
+.slot{
+font-size:40px;
+letter-spacing:10px;
+margin:10px;
+}
+
 </style>
 
 </head>
@@ -145,8 +151,8 @@ z-index:10;
 <h2>High / Low</h2>
 
 <select id="highlowGuess">
-<option value="high">High (51-100)</option>
-<option value="low">Low (1-50)</option>
+<option value="high">High</option>
+<option value="low">Low</option>
 </select>
 
 <button onclick="highLow()">Play</button>
@@ -183,6 +189,20 @@ z-index:10;
 <p id="playerHand"></p>
 <p id="dealerHand"></p>
 <p id="blackjackResult"></p>
+
+</div>
+
+<!-- SLOT MACHINE -->
+
+<div class="game">
+
+<h2>Slot Machine</h2>
+
+<button onclick="spinSlots()">Spin</button>
+
+<div id="slotDisplay" class="slot">❔ ❔ ❔</div>
+
+<p id="slotResult"></p>
 
 </div>
 
@@ -312,7 +332,6 @@ let bet=getBet()
 let spin=Math.floor(Math.random()*36)
 
 let segmentAngle=(2*Math.PI)/36
-
 let targetRotation=(Math.PI/2)-(spin*segmentAngle)
 
 let spins=6*2*Math.PI
@@ -491,6 +510,55 @@ document.getElementById("playerHand").innerText=
 
 document.getElementById("dealerHand").innerText=
 "Dealer: "+dealerHand.join(", ")+" (Total "+handValue(dealerHand)+")"
+
+}
+
+/* SLOT MACHINE */
+
+const symbols=["🍒","🍋","🍊","⭐","7️⃣"]
+
+function spinSlots(){
+
+let bet=getBet()
+
+let spins=0
+
+let interval=setInterval(()=>{
+
+let s1=symbols[Math.floor(Math.random()*symbols.length)]
+let s2=symbols[Math.floor(Math.random()*symbols.length)]
+let s3=symbols[Math.floor(Math.random()*symbols.length)]
+
+document.getElementById("slotDisplay").innerText=s1+" "+s2+" "+s3
+
+spins++
+
+if(spins>15){
+
+clearInterval(interval)
+
+if(s1===s2 && s2===s3){
+
+balance+=bet*5
+document.getElementById("slotResult").innerText="Jackpot!"
+
+}else if(s1===s2 || s2===s3 || s1===s3){
+
+balance+=bet*2
+document.getElementById("slotResult").innerText="Small win!"
+
+}else{
+
+balance-=bet
+document.getElementById("slotResult").innerText="No match"
+
+}
+
+update()
+
+}
+
+},100)
 
 }
 
