@@ -29,7 +29,7 @@ background:#1e293b;
 padding:20px;
 margin:20px auto;
 border-radius:6px;
-max-width:500px;
+max-width:520px;
 }
 
 button{
@@ -39,6 +39,7 @@ border:none;
 color:white;
 cursor:pointer;
 border-radius:4px;
+margin:5px;
 }
 
 button:hover{
@@ -85,9 +86,23 @@ Bet Amount
 
 <button onclick="roulette()">Spin</button>
 
-<br>
+<div style="position:relative;width:200px;margin:auto">
+
+<div style="
+position:absolute;
+top:-5px;
+left:95px;
+width:0;
+height:0;
+border-left:10px solid transparent;
+border-right:10px solid transparent;
+border-bottom:20px solid yellow;
+z-index:10;
+"></div>
 
 <canvas id="rouletteWheel" width="200" height="200"></canvas>
+
+</div>
 
 <p id="rouletteResult"></p>
 
@@ -157,6 +172,23 @@ Bet Amount
 
 </div>
 
+
+<!-- BLACKJACK -->
+
+<div class="game">
+
+<h2>Blackjack</h2>
+
+<button onclick="startBlackjack()">Start Game</button>
+<button onclick="hit()">Hit</button>
+<button onclick="stand()">Stand</button>
+
+<p id="playerHand"></p>
+<p id="dealerHand"></p>
+<p id="blackjackResult"></p>
+
+</div>
+
 </div>
 
 <script>
@@ -172,7 +204,7 @@ return parseInt(document.getElementById("bet").value)
 }
 
 
-/* COIN FLIP */
+/* COIN */
 
 function coinFlip(){
 
@@ -262,12 +294,16 @@ function roulette(){
 let guess=parseInt(document.getElementById("rouletteGuess").value)
 let bet=getBet()
 
-let spin=Math.floor(Math.random()*36)+1
+let spin=Math.floor(Math.random()*36)
 
-let spinDegrees=360*5 + spin*10
+let segmentAngle=(2*Math.PI)/36
 
-let start=rotation
-let end=rotation + spinDegrees*(Math.PI/180)
+let targetRotation=(Math.PI/2)-(spin*segmentAngle)
+
+let spins=6*2*Math.PI
+
+let startRotation=rotation
+let endRotation=startRotation+spins+targetRotation
 
 let startTime=null
 
@@ -277,7 +313,7 @@ if(!startTime) startTime=time
 
 let progress=time-startTime
 
-rotation=start + (end-start)*(progress/2000)
+rotation=startRotation+(endRotation-startRotation)*(progress/2000)
 
 drawWheel()
 
@@ -285,12 +321,14 @@ if(progress<2000){
 requestAnimationFrame(animate)
 }else{
 
-rotation=end
+rotation=endRotation
 
-if(guess===spin) balance+=bet*10
+let winningNumber=spin+1
+
+if(guess===winningNumber) balance+=bet*10
 else balance-=bet
 
-document.getElementById("rouletteResult").innerText="Number: "+spin
+document.getElementById("rouletteResult").innerText="Number: "+winningNumber
 
 update()
 
@@ -390,6 +428,88 @@ document.getElementById("plinkoResult").innerText=
 "Multiplier: "+multiplier+"x"
 
 update()
+
+}
+
+
+/* BLACKJACK */
+
+let playerHand=[]
+let dealerHand=[]
+let gameActive=false
+
+function drawCard(){
+return Math.floor(Math.random()*10)+1
+}
+
+function handValue(hand){
+return hand.reduce((a,b)=>a+b,0)
+}
+
+function startBlackjack(){
+
+playerHand=[drawCard(),drawCard()]
+dealerHand=[drawCard(),drawCard()]
+
+gameActive=true
+
+updateBlackjack()
+
+}
+
+function hit(){
+
+if(!gameActive) return
+
+playerHand.push(drawCard())
+
+if(handValue(playerHand)>21){
+
+document.getElementById("blackjackResult").innerText="Bust! Dealer wins"
+gameActive=false
+
+}
+
+updateBlackjack()
+
+}
+
+function stand(){
+
+if(!gameActive) return
+
+while(handValue(dealerHand)<17){
+dealerHand.push(drawCard())
+}
+
+let playerScore=handValue(playerHand)
+let dealerScore=handValue(dealerHand)
+
+let result=""
+
+if(dealerScore>21 || playerScore>dealerScore){
+result="Player wins"
+}else if(playerScore<dealerScore){
+result="Dealer wins"
+}else{
+result="Push"
+}
+
+document.getElementById("blackjackResult").innerText=result
+
+gameActive=false
+
+updateBlackjack()
+
+}
+
+function updateBlackjack(){
+
+document.getElementById("playerHand").innerText=
+"Player: "+playerHand.join(", ")+" (Total "+handValue(playerHand)+")"
+
+document.getElementById("dealerHand").innerText=
+"Dealer: "+dealerHand.join(", ")+" (Total "+handValue(dealerHand)+")"
 
 }
 
