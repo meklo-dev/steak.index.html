@@ -8,51 +8,90 @@
 <style>
 
 body{
-background:#0f172a;
+background:#0b0f1a;
 color:white;
 font-family:Arial;
 margin:0;
-text-align:center;
 }
 
 header{
-background:#065f46;
-padding:15px;
+background:#12182b;
+padding:15px 30px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+border-bottom:2px solid #1f2a44;
+}
+
+header h1{
+color:#4da3ff;
+margin:0;
+}
+
+nav span{
+margin-left:20px;
+color:#9bb4d4;
 }
 
 .container{
-padding:20px;
+padding:30px;
+max-width:1200px;
+margin:auto;
 }
 
-.game{
-background:#1e293b;
-padding:20px;
-margin:20px auto;
-border-radius:6px;
-max-width:520px;
+.balance{
+font-size:20px;
+margin-bottom:15px;
 }
 
-button{
-padding:10px 16px;
-background:#10b981;
-border:none;
-color:white;
-cursor:pointer;
-border-radius:4px;
-margin:5px;
-}
-
-button:hover{
-background:#059669;
+.bet-input{
+margin-bottom:20px;
 }
 
 input,select{
 padding:6px;
 margin:5px;
+background:#1a2338;
+border:1px solid #2a3657;
+color:white;
+}
+
+button{
+padding:10px 16px;
+background:#2f6df6;
+border:none;
+color:white;
+cursor:pointer;
+border-radius:6px;
+margin:5px;
+transition:0.2s;
+}
+
+button:hover{
+background:#4da3ff;
+}
+
+.games{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+gap:20px;
+}
+
+.game{
+background:#12182b;
+padding:20px;
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.5);
+text-align:center;
+}
+
+.game h2{
+margin-top:0;
+color:#4da3ff;
 }
 
 canvas{
-background:#111;
+background:#0a0d17;
 margin-top:10px;
 }
 
@@ -60,6 +99,14 @@ margin-top:10px;
 font-size:40px;
 letter-spacing:10px;
 margin:10px;
+}
+
+footer{
+text-align:center;
+padding:20px;
+color:#6e87a8;
+border-top:2px solid #1f2a44;
+margin-top:40px;
 }
 
 </style>
@@ -70,20 +117,32 @@ margin:10px;
 
 <header>
 <h1>steak.com</h1>
+
+<nav>
+<span>Casino</span>
+<span>Games</span>
+<span>Leaderboard</span>
+</nav>
 </header>
 
 <div class="container">
 
-<h2>Balance: <span id="balance">1000</span> coins</h2>
+<div class="balance">
+Balance: <span id="balance">1000</span> coins
+</div>
 
+<div class="bet-input">
 Bet Amount
 <input id="bet" type="number" value="50">
+</div>
+
+<div class="games">
 
 <!-- ROULETTE -->
 
 <div class="game">
 
-<h2>Roulette</h2>
+<h2>🎡 Roulette</h2>
 
 <input id="rouletteGuess" type="number" min="1" max="36">
 
@@ -117,7 +176,7 @@ z-index:10;
 
 <div class="game">
 
-<h2>Coin Flip</h2>
+<h2>🪙 Coin Flip</h2>
 
 <select id="coinGuess">
 <option value="heads">Heads</option>
@@ -134,7 +193,7 @@ z-index:10;
 
 <div class="game">
 
-<h2>Dice</h2>
+<h2>🎲 Dice</h2>
 
 <input id="diceGuess" type="number" min="1" max="6">
 
@@ -148,7 +207,7 @@ z-index:10;
 
 <div class="game">
 
-<h2>High / Low</h2>
+<h2>⬆️⬇️ High / Low</h2>
 
 <select id="highlowGuess">
 <option value="high">High</option>
@@ -165,7 +224,7 @@ z-index:10;
 
 <div class="game">
 
-<h2>Crash</h2>
+<h2>🚀 Crash</h2>
 
 <button onclick="startCrash()">Start</button>
 <button onclick="cashOut()">Cash Out</button>
@@ -180,7 +239,7 @@ z-index:10;
 
 <div class="game">
 
-<h2>Blackjack</h2>
+<h2>🃏 Blackjack</h2>
 
 <button onclick="startBlackjack()">Start Game</button>
 <button onclick="hit()">Hit</button>
@@ -196,7 +255,7 @@ z-index:10;
 
 <div class="game">
 
-<h2>Slot Machine</h2>
+<h2>🎰 Slots</h2>
 
 <button onclick="spinSlots()">Spin</button>
 
@@ -207,8 +266,15 @@ z-index:10;
 </div>
 
 </div>
+</div>
+
+<footer>
+Demo casino project • Front-end JavaScript simulation
+</footer>
 
 <script>
+
+/* BALANCE */
 
 let balance = 1000
 
