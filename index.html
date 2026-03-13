@@ -54,7 +54,6 @@ margin:5px;
 canvas{
 background:#111;
 margin-top:10px;
-border-radius:50%;
 }
 
 </style>
@@ -82,14 +81,16 @@ Bet Amount
 
 <input id="rouletteGuess" type="number" min="1" max="36">
 
+<br>
+
 <button onclick="roulette()">Spin</button>
 
-<div style="position:relative;width:200px;margin:auto">
+<div style="position:relative;width:220px;margin:auto">
 
 <div style="
 position:absolute;
-top:-5px;
-left:95px;
+top:-10px;
+left:105px;
 width:0;
 height:0;
 border-left:10px solid transparent;
@@ -98,7 +99,7 @@ border-bottom:20px solid yellow;
 z-index:10;
 "></div>
 
-<canvas id="rouletteWheel" width="200" height="200"></canvas>
+<canvas id="rouletteWheel" width="220" height="220"></canvas>
 
 </div>
 
@@ -106,7 +107,8 @@ z-index:10;
 
 </div>
 
-<!-- COIN -->
+
+<!-- COIN FLIP -->
 
 <div class="game">
 
@@ -123,6 +125,7 @@ z-index:10;
 
 </div>
 
+
 <!-- DICE -->
 
 <div class="game">
@@ -137,48 +140,21 @@ z-index:10;
 
 </div>
 
-<!-- CRASH -->
+
+<!-- HIGH LOW -->
 
 <div class="game">
 
-<h2>Crash</h2>
+<h2>High / Low</h2>
 
-<button onclick="startCrash()">Start</button>
-<button onclick="cashOut()">Cash Out</button>
+<select id="highlowGuess">
+<option value="high">High (51-100)</option>
+<option value="low">Low (1-50)</option>
+</select>
 
-<h2 id="crashMultiplier">1.00x</h2>
+<button onclick="highLow()">Play</button>
 
-<p id="crashResult"></p>
-
-</div>
-
-<!-- PLINKO -->
-
-<div class="game">
-
-<h2>Plinko</h2>
-
-<button onclick="dropBall()">Drop Ball</button>
-
-<canvas id="plinko" width="300" height="200"></canvas>
-
-<p id="plinkoResult"></p>
-
-</div>
-
-<!-- BLACKJACK -->
-
-<div class="game">
-
-<h2>Blackjack</h2>
-
-<button onclick="startBlackjack()">Start Game</button>
-<button onclick="hit()">Hit</button>
-<button onclick="stand()">Stand</button>
-
-<p id="playerHand"></p>
-<p id="dealerHand"></p>
-<p id="blackjackResult"></p>
+<p id="highlowResult"></p>
 
 </div>
 
@@ -186,15 +162,16 @@ z-index:10;
 
 <script>
 
-let balance=1000
+let balance = 1000
 
 function update(){
-document.getElementById("balance").innerText=balance
+document.getElementById("balance").innerText = balance
 }
 
 function getBet(){
 return parseInt(document.getElementById("bet").value)
 }
+
 
 /* COIN */
 
@@ -214,6 +191,7 @@ update()
 
 }
 
+
 /* DICE */
 
 function rollDice(){
@@ -232,169 +210,125 @@ update()
 
 }
 
-/* CRASH */
 
-let crashRunning=false
-let multiplier=1
-let crashPoint
+/* HIGH LOW */
 
-function startCrash(){
+function highLow(){
 
-if(crashRunning) return
-
+let guess=document.getElementById("highlowGuess").value
 let bet=getBet()
 
-balance-=bet
+let number=Math.floor(Math.random()*100)+1
+
+let result = number>50 ? "high" : "low"
+
+if(result===guess) balance+=bet
+else balance-=bet
+
+document.getElementById("highlowResult").innerText="Number: "+number
+
 update()
 
-crashRunning=true
-multiplier=1
-crashPoint=Math.random()*5+1
+}
 
-let interval=setInterval(()=>{
 
-multiplier+=0.05
+/* ROULETTE */
 
-document.getElementById("crashMultiplier").innerText=
-multiplier.toFixed(2)+"x"
+const wheel=document.getElementById("rouletteWheel")
+const ctx=wheel.getContext("2d")
 
-if(multiplier>=crashPoint){
+let rotation=0
 
-clearInterval(interval)
+function drawWheel(){
 
-crashRunning=false
+const segments=36
+const radius=100
 
-document.getElementById("crashResult").innerText=
-"Crash! You lost your bet."
+ctx.clearRect(0,0,220,220)
+
+ctx.save()
+ctx.translate(110,110)
+ctx.rotate(rotation)
+
+for(let i=0;i<segments;i++){
+
+let startAngle=i*(2*Math.PI/segments)
+let endAngle=startAngle+(2*Math.PI/segments)
+
+ctx.beginPath()
+ctx.moveTo(0,0)
+ctx.arc(0,0,radius,startAngle,endAngle)
+
+ctx.fillStyle=i%2==0?"red":"black"
+
+ctx.fill()
+
+ctx.save()
+
+ctx.rotate(startAngle+(Math.PI/segments))
+ctx.fillStyle="white"
+ctx.font="10px Arial"
+ctx.fillText(i+1,60,5)
+
+ctx.restore()
 
 }
 
-},100)
+ctx.restore()
 
 }
 
-function cashOut(){
+drawWheel()
 
-if(!crashRunning) return
 
+function roulette(){
+
+let guess=parseInt(document.getElementById("rouletteGuess").value)
 let bet=getBet()
 
-balance+=Math.floor(bet*multiplier)
+let spin=Math.floor(Math.random()*36)
+
+let segmentAngle=(2*Math.PI)/36
+
+let targetRotation=(Math.PI/2)-(spin*segmentAngle)
+
+let spins=6*2*Math.PI
+
+let startRotation=rotation
+let endRotation=startRotation+spins+targetRotation
+
+let startTime=null
+
+function animate(time){
+
+if(!startTime) startTime=time
+
+let progress=time-startTime
+
+rotation=startRotation+(endRotation-startRotation)*(progress/2000)
+
+drawWheel()
+
+if(progress<2000){
+requestAnimationFrame(animate)
+}else{
+
+rotation=endRotation
+
+let winningNumber=spin+1
+
+if(guess===winningNumber) balance+=bet*10
+else balance-=bet
+
+document.getElementById("rouletteResult").innerText="Number: "+winningNumber
 
 update()
 
-document.getElementById("crashResult").innerText=
-"Cashed out at "+multiplier.toFixed(2)
-
-crashRunning=false
+}
 
 }
 
-/* BLACKJACK */
-
-const suits=["♠","♥","♦","♣"]
-
-let playerHand=[]
-let dealerHand=[]
-let gameActive=false
-let blackjackBet=0
-
-function drawCard(){
-
-let value=Math.floor(Math.random()*10)+1
-let suit=suits[Math.floor(Math.random()*4)]
-
-return {value:value,display:value+suit}
-
-}
-
-function handValue(hand){
-
-return hand.reduce((sum,card)=>sum+card.value,0)
-
-}
-
-function startBlackjack(){
-
-blackjackBet=getBet()
-
-balance-=blackjackBet
-update()
-
-playerHand=[drawCard(),drawCard()]
-dealerHand=[drawCard(),drawCard()]
-
-gameActive=true
-
-updateBlackjack()
-
-}
-
-function hit(){
-
-if(!gameActive) return
-
-playerHand.push(drawCard())
-
-if(handValue(playerHand)>21){
-
-document.getElementById("blackjackResult").innerText="Bust! Dealer wins"
-gameActive=false
-
-}
-
-updateBlackjack()
-
-}
-
-function stand(){
-
-if(!gameActive) return
-
-while(handValue(dealerHand)<17){
-dealerHand.push(drawCard())
-}
-
-let playerScore=handValue(playerHand)
-let dealerScore=handValue(dealerHand)
-
-let result=""
-
-if(dealerScore>21||playerScore>dealerScore){
-
-balance+=blackjackBet*2
-result="Player wins"
-
-}
-else if(playerScore<dealerScore){
-
-result="Dealer wins"
-
-}
-else{
-
-balance+=blackjackBet
-result="Push"
-
-}
-
-update()
-
-document.getElementById("blackjackResult").innerText=result
-
-gameActive=false
-
-updateBlackjack()
-
-}
-
-function updateBlackjack(){
-
-document.getElementById("playerHand").innerText=
-"Player: "+playerHand.map(c=>c.display).join(" ")+" ("+handValue(playerHand)+")"
-
-document.getElementById("dealerHand").innerText=
-"Dealer: "+dealerHand.map(c=>c.display).join(" ")+" ("+handValue(dealerHand)+")"
+requestAnimationFrame(animate)
 
 }
 
