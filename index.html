@@ -3,7 +3,7 @@
 
 <head>
 
-<title>steak.com</title>
+<title>Probability Simulator</title>
 
 <style>
 
@@ -39,12 +39,12 @@ max-width:1200px;
 margin:auto;
 }
 
-.balance{
+.points{
 font-size:20px;
 margin-bottom:15px;
 }
 
-.bet-input{
+.controls{
 margin-bottom:20px;
 }
 
@@ -64,20 +64,19 @@ color:white;
 cursor:pointer;
 border-radius:6px;
 margin:5px;
-transition:0.2s;
 }
 
 button:hover{
 background:#4da3ff;
 }
 
-.games{
+.grid{
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
 gap:20px;
 }
 
-.game{
+.card{
 background:#12182b;
 padding:20px;
 border-radius:10px;
@@ -85,20 +84,32 @@ box-shadow:0 0 10px rgba(0,0,0,0.5);
 text-align:center;
 }
 
-.game h2{
-margin-top:0;
-color:#4da3ff;
-}
-
 canvas{
 background:#0a0d17;
 margin-top:10px;
 }
 
-.slot{
+.symbols{
 font-size:40px;
 letter-spacing:10px;
 margin:10px;
+}
+
+.pointer{
+position:absolute;
+top:-10px;
+left:105px;
+width:0;
+height:0;
+border-left:10px solid transparent;
+border-right:10px solid transparent;
+border-bottom:20px solid yellow;
+}
+
+.wheelbox{
+position:relative;
+width:220px;
+margin:auto;
 }
 
 footer{
@@ -116,235 +127,209 @@ margin-top:40px;
 <body>
 
 <header>
-<h1>steak.com</h1>
+<h1>Probability Simulator</h1>
 
 <nav>
-<span>Casino</span>
-<span>Games</span>
-<span>Leaderboard</span>
+<span>Simulations</span>
+<span>Experiments</span>
+<span>Statistics</span>
 </nav>
 </header>
 
 <div class="container">
 
-<div class="balance">
-Balance: <span id="balance">1000</span> coins
+<div class="points">
+Points: <span id="balance">1000</span>
 </div>
 
-<div class="bet-input">
-Bet Amount
+<div class="controls">
+Input Value
 <input id="bet" type="number" value="50">
 </div>
 
-<div class="games">
+<div class="grid">
 
-<!-- ROULETTE -->
+<div class="card">
 
-<div class="game">
+<h2>Wheel Simulation</h2>
 
-<h2>🎡 Roulette</h2>
-
-<input id="rouletteGuess" type="number" min="1" max="36">
+<input id="wheelGuess" type="number" min="1" max="36">
 
 <br>
 
-<button onclick="roulette()">Spin</button>
+<button onclick="runWheel()">Run</button>
 
-<div style="position:relative;width:220px;margin:auto">
+<div class="wheelbox">
 
-<div style="
-position:absolute;
-top:-10px;
-left:105px;
-width:0;
-height:0;
-border-left:10px solid transparent;
-border-right:10px solid transparent;
-border-bottom:20px solid yellow;
-z-index:10;
-"></div>
+<div class="pointer"></div>
 
-<canvas id="rouletteWheel" width="220" height="220"></canvas>
+<canvas id="wheelCanvas" width="220" height="220"></canvas>
 
 </div>
 
-<p id="rouletteResult"></p>
+<p id="wheelResult"></p>
 
 </div>
 
-<!-- COIN -->
+<div class="card">
 
-<div class="game">
-
-<h2>🪙 Coin Flip</h2>
+<h2>Coin Probability</h2>
 
 <select id="coinGuess">
 <option value="heads">Heads</option>
 <option value="tails">Tails</option>
 </select>
 
-<button onclick="coinFlip()">Flip</button>
+<button onclick="coinTest()">Run</button>
 
 <p id="coinResult"></p>
 
 </div>
 
-<!-- DICE -->
+<div class="card">
 
-<div class="game">
-
-<h2>🎲 Dice</h2>
+<h2>Integer Generator</h2>
 
 <input id="diceGuess" type="number" min="1" max="6">
 
-<button onclick="rollDice()">Roll</button>
+<button onclick="numberTest()">Run</button>
 
 <p id="diceResult"></p>
 
 </div>
 
-<!-- HIGH LOW -->
+<div class="card">
 
-<div class="game">
+<h2>Range Test</h2>
 
-<h2>⬆️⬇️ High / Low</h2>
-
-<select id="highlowGuess">
+<select id="rangeGuess">
 <option value="high">High</option>
 <option value="low">Low</option>
 </select>
 
-<button onclick="highLow()">Play</button>
+<button onclick="rangeTest()">Run</button>
 
-<p id="highlowResult"></p>
-
-</div>
-
-<!-- CRASH -->
-
-<div class="game">
-
-<h2>🚀 Crash</h2>
-
-<button onclick="startCrash()">Start</button>
-<button onclick="cashOut()">Cash Out</button>
-
-<h2 id="crashMultiplier">1.00x</h2>
-
-<p id="crashResult"></p>
+<p id="rangeResult"></p>
 
 </div>
 
-<!-- BLACKJACK -->
+<div class="card">
 
-<div class="game">
+<h2>Growth Simulation</h2>
 
-<h2>🃏 Blackjack</h2>
+<button onclick="startGrowth()">Start</button>
 
-<button onclick="startBlackjack()">Start Game</button>
-<button onclick="hit()">Hit</button>
-<button onclick="stand()">Stand</button>
+<h2 id="growthValue">1.00</h2>
 
-<p id="playerHand"></p>
-<p id="dealerHand"></p>
-<p id="blackjackResult"></p>
+<p id="growthResult"></p>
 
 </div>
 
-<!-- SLOT MACHINE -->
+<div class="card">
 
-<div class="game">
+<h2>Pattern Generator</h2>
 
-<h2>🎰 Slots</h2>
+<button onclick="patternTest()">Run</button>
 
-<button onclick="spinSlots()">Spin</button>
+<div id="patternDisplay" class="symbols">❔ ❔ ❔</div>
 
-<div id="slotDisplay" class="slot">❔ ❔ ❔</div>
-
-<p id="slotResult"></p>
+<p id="patternResult"></p>
 
 </div>
 
 </div>
+
 </div>
 
 <footer>
-Demo casino project • Front-end JavaScript simulation
+Interactive probability simulations using JavaScript
 </footer>
 
 <script>
 
-/* BALANCE */
-
-let balance = 1000
+let balance=1000
 
 function update(){
-document.getElementById("balance").innerText = balance
+document.getElementById("balance").innerText=balance
 }
 
 function getBet(){
 return parseInt(document.getElementById("bet").value)
 }
 
-/* COIN */
+/* coin */
 
-function coinFlip(){
+function coinTest(){
 
 let guess=document.getElementById("coinGuess").value
 let bet=getBet()
 
-let result=Math.random()<0.5?"heads":"tails"
+let value=Math.random()<0.5?"heads":"tails"
 
-if(guess===result) balance+=bet
+if(guess===value) balance+=bet
 else balance-=bet
 
-document.getElementById("coinResult").innerText="Result: "+result
+document.getElementById("coinResult").innerText="Result: "+value
 
 update()
 
 }
 
-/* DICE */
+/* number */
 
-function rollDice(){
+function numberTest(){
 
 let guess=parseInt(document.getElementById("diceGuess").value)
 let bet=getBet()
 
-let roll=Math.floor(Math.random()*6)+1
+let value=Math.floor(Math.random()*6)+1
 
-if(guess===roll) balance+=bet*2
+if(guess===value) balance+=bet*2
 else balance-=bet
 
-document.getElementById("diceResult").innerText="Rolled: "+roll
+document.getElementById("diceResult").innerText="Value: "+value
 
 update()
 
 }
 
-/* HIGH LOW */
+/* range */
 
-function highLow(){
+function rangeTest(){
 
-let guess=document.getElementById("highlowGuess").value
+let guess=document.getElementById("rangeGuess").value
 let bet=getBet()
 
-let number=Math.floor(Math.random()*100)+1
+let value=Math.floor(Math.random()*100)+1
 
-let result = number>50 ? "high" : "low"
+let result=value>50?"high":"low"
 
 if(result===guess) balance+=bet
 else balance-=bet
 
-document.getElementById("highlowResult").innerText="Number: "+number
+document.getElementById("rangeResult").innerText="Number: "+value
 
 update()
 
 }
 
-/* ROULETTE */
+/* pattern */
 
-const wheel=document.getElementById("rouletteWheel")
+const items=["A","B","C","D","E"]
+
+function patternTest(){
+
+let a=items[Math.floor(Math.random()*items.length)]
+let b=items[Math.floor(Math.random()*items.length)]
+let c=items[Math.floor(Math.random()*items.length)]
+
+document.getElementById("patternDisplay").innerText=a+" "+b+" "+c
+
+}
+
+/* wheel */
+
+const wheel=document.getElementById("wheelCanvas")
 const ctx=wheel.getContext("2d")
 
 let rotation=0
@@ -362,26 +347,17 @@ ctx.rotate(rotation)
 
 for(let i=0;i<segments;i++){
 
-let startAngle=i*(2*Math.PI/segments)
-let endAngle=startAngle+(2*Math.PI/segments)
+let start=i*(2*Math.PI/segments)
+let end=start+(2*Math.PI/segments)
 
 ctx.beginPath()
 ctx.moveTo(0,0)
-ctx.arc(0,0,radius,startAngle,endAngle)
+ctx.arc(0,0,radius,start,end)
 
-ctx.fillStyle=i%2==0?"red":"black"
+ctx.fillStyle=i%2?"#4da3ff":"#1f2a44"
 
 ctx.fill()
 
-ctx.save()
-
-ctx.rotate(startAngle+(Math.PI/segments))
-ctx.fillStyle="white"
-ctx.font="10px Arial"
-ctx.fillText(i+1,60,5)
-
-ctx.restore()
-
 }
 
 ctx.restore()
@@ -390,237 +366,34 @@ ctx.restore()
 
 drawWheel()
 
-function roulette(){
+function runWheel(){
 
-let guess=parseInt(document.getElementById("rouletteGuess").value)
-let bet=getBet()
-
-let spin=Math.floor(Math.random()*36)
-
-let segmentAngle=(2*Math.PI)/36
-let targetRotation=(Math.PI/2)-(spin*segmentAngle)
-
-let spins=6*2*Math.PI
-
-let startRotation=rotation
-let endRotation=startRotation+spins+targetRotation
-
-let startTime=null
-
-function animate(time){
-
-if(!startTime) startTime=time
-
-let progress=time-startTime
-
-rotation=startRotation+(endRotation-startRotation)*(progress/2000)
-
+rotation+=Math.PI/3
 drawWheel()
 
-if(progress<2000){
-requestAnimationFrame(animate)
-}else{
+let value=Math.floor(Math.random()*36)+1
 
-rotation=endRotation
-
-let winningNumber=spin+1
-
-if(guess===winningNumber) balance+=bet*10
-else balance-=bet
-
-document.getElementById("rouletteResult").innerText="Number: "+winningNumber
-
-update()
+document.getElementById("wheelResult").innerText="Value: "+value
 
 }
 
-}
+/* growth */
 
-requestAnimationFrame(animate)
+function startGrowth(){
 
-}
-
-/* CRASH */
-
-let crashRunning=false
-let multiplier=1
-let crashPoint
-
-function startCrash(){
-
-if(crashRunning) return
-
-let bet=getBet()
-
-balance-=bet
-update()
-
-crashRunning=true
-multiplier=1
-crashPoint=Math.random()*5+1
+let v=1
 
 let interval=setInterval(()=>{
 
-multiplier+=0.05
+v+=0.1
 
-document.getElementById("crashMultiplier").innerText=
-multiplier.toFixed(2)+"x"
+document.getElementById("growthValue").innerText=v.toFixed(2)
 
-if(multiplier>=crashPoint){
-
-clearInterval(interval)
-
-crashRunning=false
-
-document.getElementById("crashResult").innerText=
-"CRASHED at "+multiplier.toFixed(2)
-
-}
-
-},100)
-
-}
-
-function cashOut(){
-
-if(!crashRunning) return
-
-let bet=getBet()
-
-balance+=Math.floor(bet*multiplier)
-
-update()
-
-document.getElementById("crashResult").innerText=
-"Cashed out at "+multiplier.toFixed(2)
-
-crashRunning=false
-
-}
-
-/* BLACKJACK */
-
-let playerHand=[]
-let dealerHand=[]
-let gameActive=false
-
-function drawCard(){
-return Math.floor(Math.random()*10)+1
-}
-
-function handValue(hand){
-return hand.reduce((a,b)=>a+b,0)
-}
-
-function startBlackjack(){
-
-playerHand=[drawCard(),drawCard()]
-dealerHand=[drawCard(),drawCard()]
-
-gameActive=true
-
-updateBlackjack()
-
-}
-
-function hit(){
-
-if(!gameActive) return
-
-playerHand.push(drawCard())
-
-if(handValue(playerHand)>21){
-
-document.getElementById("blackjackResult").innerText="Bust! Dealer wins"
-gameActive=false
-
-}
-
-updateBlackjack()
-
-}
-
-function stand(){
-
-if(!gameActive) return
-
-while(handValue(dealerHand)<17){
-dealerHand.push(drawCard())
-}
-
-let playerScore=handValue(playerHand)
-let dealerScore=handValue(dealerHand)
-
-let result=""
-
-if(dealerScore>21 || playerScore>dealerScore){
-result="Player wins"
-}else if(playerScore<dealerScore){
-result="Dealer wins"
-}else{
-result="Push"
-}
-
-document.getElementById("blackjackResult").innerText=result
-
-gameActive=false
-
-updateBlackjack()
-
-}
-
-function updateBlackjack(){
-
-document.getElementById("playerHand").innerText=
-"Player: "+playerHand.join(", ")+" (Total "+handValue(playerHand)+")"
-
-document.getElementById("dealerHand").innerText=
-"Dealer: "+dealerHand.join(", ")+" (Total "+handValue(dealerHand)+")"
-
-}
-
-/* SLOT MACHINE */
-
-const symbols=["🍒","🍋","🍊","⭐","7️⃣"]
-
-function spinSlots(){
-
-let bet=getBet()
-
-let spins=0
-
-let interval=setInterval(()=>{
-
-let s1=symbols[Math.floor(Math.random()*symbols.length)]
-let s2=symbols[Math.floor(Math.random()*symbols.length)]
-let s3=symbols[Math.floor(Math.random()*symbols.length)]
-
-document.getElementById("slotDisplay").innerText=s1+" "+s2+" "+s3
-
-spins++
-
-if(spins>15){
+if(v>3){
 
 clearInterval(interval)
 
-if(s1===s2 && s2===s3){
-
-balance+=bet*5
-document.getElementById("slotResult").innerText="Jackpot!"
-
-}else if(s1===s2 || s2===s3 || s1===s3){
-
-balance+=bet*2
-document.getElementById("slotResult").innerText="Small win!"
-
-}else{
-
-balance-=bet
-document.getElementById("slotResult").innerText="No match"
-
-}
-
-update()
+document.getElementById("growthResult").innerText="Finished"
 
 }
 
@@ -631,5 +404,4 @@ update()
 </script>
 
 </body>
-
 </html>
