@@ -107,8 +107,7 @@ z-index:10;
 
 </div>
 
-
-<!-- COIN FLIP -->
+<!-- COIN -->
 
 <div class="game">
 
@@ -125,7 +124,6 @@ z-index:10;
 
 </div>
 
-
 <!-- DICE -->
 
 <div class="game">
@@ -139,7 +137,6 @@ z-index:10;
 <p id="diceResult"></p>
 
 </div>
-
 
 <!-- HIGH LOW -->
 
@@ -158,6 +155,37 @@ z-index:10;
 
 </div>
 
+<!-- CRASH -->
+
+<div class="game">
+
+<h2>Crash</h2>
+
+<button onclick="startCrash()">Start</button>
+<button onclick="cashOut()">Cash Out</button>
+
+<h2 id="crashMultiplier">1.00x</h2>
+
+<p id="crashResult"></p>
+
+</div>
+
+<!-- BLACKJACK -->
+
+<div class="game">
+
+<h2>Blackjack</h2>
+
+<button onclick="startBlackjack()">Start Game</button>
+<button onclick="hit()">Hit</button>
+<button onclick="stand()">Stand</button>
+
+<p id="playerHand"></p>
+<p id="dealerHand"></p>
+<p id="blackjackResult"></p>
+
+</div>
+
 </div>
 
 <script>
@@ -171,7 +199,6 @@ document.getElementById("balance").innerText = balance
 function getBet(){
 return parseInt(document.getElementById("bet").value)
 }
-
 
 /* COIN */
 
@@ -191,7 +218,6 @@ update()
 
 }
 
-
 /* DICE */
 
 function rollDice(){
@@ -209,7 +235,6 @@ document.getElementById("diceResult").innerText="Rolled: "+roll
 update()
 
 }
-
 
 /* HIGH LOW */
 
@@ -230,7 +255,6 @@ document.getElementById("highlowResult").innerText="Number: "+number
 update()
 
 }
-
 
 /* ROULETTE */
 
@@ -280,7 +304,6 @@ ctx.restore()
 
 drawWheel()
 
-
 function roulette(){
 
 let guess=parseInt(document.getElementById("rouletteGuess").value)
@@ -329,6 +352,145 @@ update()
 }
 
 requestAnimationFrame(animate)
+
+}
+
+/* CRASH */
+
+let crashRunning=false
+let multiplier=1
+let crashPoint
+
+function startCrash(){
+
+if(crashRunning) return
+
+let bet=getBet()
+
+balance-=bet
+update()
+
+crashRunning=true
+multiplier=1
+crashPoint=Math.random()*5+1
+
+let interval=setInterval(()=>{
+
+multiplier+=0.05
+
+document.getElementById("crashMultiplier").innerText=
+multiplier.toFixed(2)+"x"
+
+if(multiplier>=crashPoint){
+
+clearInterval(interval)
+
+crashRunning=false
+
+document.getElementById("crashResult").innerText=
+"CRASHED at "+multiplier.toFixed(2)
+
+}
+
+},100)
+
+}
+
+function cashOut(){
+
+if(!crashRunning) return
+
+let bet=getBet()
+
+balance+=Math.floor(bet*multiplier)
+
+update()
+
+document.getElementById("crashResult").innerText=
+"Cashed out at "+multiplier.toFixed(2)
+
+crashRunning=false
+
+}
+
+/* BLACKJACK */
+
+let playerHand=[]
+let dealerHand=[]
+let gameActive=false
+
+function drawCard(){
+return Math.floor(Math.random()*10)+1
+}
+
+function handValue(hand){
+return hand.reduce((a,b)=>a+b,0)
+}
+
+function startBlackjack(){
+
+playerHand=[drawCard(),drawCard()]
+dealerHand=[drawCard(),drawCard()]
+
+gameActive=true
+
+updateBlackjack()
+
+}
+
+function hit(){
+
+if(!gameActive) return
+
+playerHand.push(drawCard())
+
+if(handValue(playerHand)>21){
+
+document.getElementById("blackjackResult").innerText="Bust! Dealer wins"
+gameActive=false
+
+}
+
+updateBlackjack()
+
+}
+
+function stand(){
+
+if(!gameActive) return
+
+while(handValue(dealerHand)<17){
+dealerHand.push(drawCard())
+}
+
+let playerScore=handValue(playerHand)
+let dealerScore=handValue(dealerHand)
+
+let result=""
+
+if(dealerScore>21 || playerScore>dealerScore){
+result="Player wins"
+}else if(playerScore<dealerScore){
+result="Dealer wins"
+}else{
+result="Push"
+}
+
+document.getElementById("blackjackResult").innerText=result
+
+gameActive=false
+
+updateBlackjack()
+
+}
+
+function updateBlackjack(){
+
+document.getElementById("playerHand").innerText=
+"Player: "+playerHand.join(", ")+" (Total "+handValue(playerHand)+")"
+
+document.getElementById("dealerHand").innerText=
+"Dealer: "+dealerHand.join(", ")+" (Total "+handValue(dealerHand)+")"
 
 }
 
